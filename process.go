@@ -15,6 +15,7 @@ import (
 	"unsafe"
 )
 
+// Process describes a unix process.
 type Process struct {
 	*os.Process
 	Tty  string
@@ -23,6 +24,7 @@ type Process struct {
 	Args []string
 }
 
+// String returns all of the process's relevant information as a string.
 func (p Process) String() string {
 	return fmt.Sprintf("[Pid]: %d\n"+
 		"[Command]: %s\n"+
@@ -70,6 +72,7 @@ func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 		return err
 	}
 
+	// Notify that the process has started.
 	notify <- struct{}{}
 
 	// Wait for the command to finish.
@@ -101,6 +104,7 @@ func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 		return err
 	}
 
+	// Notify that the process has started.
 	notify <- struct{}{}
 
 	return nil
@@ -138,14 +142,18 @@ func (p *Process) FindPid() error {
 	return err
 }
 
+// FullCommand returns a processes command string with it's arguments.
 func (p Process) FullCommand() string {
 	return p.Cmd + " " + strings.Join(p.Args, " ")
 }
 
+// InTty returns a true or false depending if p.Tty is ?? or
+// a value such as ttys001.
 func (p Process) InTty() bool {
 	return p.Tty != "??"
 }
 
+// OpenTty returns an opened file handle to the tty of the process.
 func (p Process) OpenTty() (*os.File, error) {
 	if !p.InTty() {
 		return nil, fmt.Errorf("process is not in a tty")
@@ -153,6 +161,9 @@ func (p Process) OpenTty() (*os.File, error) {
 	return os.Open("/dev/" + p.Tty)
 }
 
+// Find by name takes in a name and through a process of elimination by
+// prompting the user to select the correct process from a list, finds
+// and returns a process by it's name.
 func FindByName(name string) (*Process, error) {
 	psOutput, err := exec.Command("ps", "-e").Output()
 	if err != nil {
@@ -193,6 +204,7 @@ func FindByName(name string) (*Process, error) {
 	return FindByPid(pid)
 }
 
+// FindByPid finds and returns a process by it's pid.
 func FindByPid(pid int) (*Process, error) {
 	process := new(Process)
 
