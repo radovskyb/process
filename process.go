@@ -161,6 +161,11 @@ func (p Process) OpenTty() (*os.File, error) {
 	return os.Open("/dev/" + p.Tty)
 }
 
+// Chdir changes the current working directory to the processes cwd.
+func (p Process) Chdir() error {
+	return os.Chdir(p.Cwd)
+}
+
 // Find by name takes in a name and through a process of elimination by
 // prompting the user to select the correct process from a list, finds
 // and returns a process by it's name.
