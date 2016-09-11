@@ -206,15 +206,15 @@ func FindByName(name string) (*Process, error) {
 
 // FindByPid finds and returns a process by it's pid.
 func FindByPid(pid int) (*Process, error) {
-	process := new(Process)
+	proc := new(Process)
 
 	var err error
-	process.Process, err = os.FindProcess(pid)
+	proc.Process, err = os.FindProcess(pid)
 	if err != nil {
 		return nil, err
 	}
 
-	pidStr := strconv.Itoa(process.Pid)
+	pidStr := strconv.Itoa(proc.Pid)
 
 	// Get the comm= result from ps to compare to the ps's
 	// command= result to use to extract the process's args.
@@ -224,7 +224,7 @@ func FindByPid(pid int) (*Process, error) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	process.Cmd = strings.TrimSpace(string(pidCmd))
+	proc.Cmd = strings.TrimSpace(string(pidCmd))
 
 	// Extract process's args.
 	//
@@ -234,15 +234,15 @@ func FindByPid(pid int) (*Process, error) {
 		log.Fatalln(err)
 	}
 
-	split := strings.SplitAfter(string(pidCommandEq), process.Cmd)
-	process.Args = strings.FieldsFunc(split[1], unicode.IsSpace)
+	split := strings.SplitAfter(string(pidCommandEq), proc.Cmd)
+	proc.Args = strings.FieldsFunc(split[1], unicode.IsSpace)
 
 	// Get the tty of the process.
 	tty, err := exec.Command("ps", "-o", "tty=", "-p", pidStr).Output()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	process.Tty = strings.TrimSpace(string(tty))
+	proc.Tty = strings.TrimSpace(string(tty))
 
 	// Find folder of the process (cwd).
 	//
@@ -256,12 +256,12 @@ func FindByPid(pid int) (*Process, error) {
 	for scanner.Scan() {
 		words := strings.FieldsFunc(scanner.Text(), unicode.IsSpace)
 		if words[3] == "cwd" {
-			process.Cwd = strings.TrimSpace(strings.Join(words[8:], " "))
+			proc.Cwd = strings.TrimSpace(strings.Join(words[8:], " "))
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
-	return process, nil
+	return proc, nil
 }
