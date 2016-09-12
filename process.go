@@ -28,7 +28,7 @@ type Process struct {
 }
 
 // String returns all of the process's relevant information as a string.
-func (p Process) String() string {
+func (p *Process) String() string {
 	return fmt.Sprintf("[Pid]: %d\n"+
 		"[Command]: %s\n"+
 		"[Args]: %s\n"+
@@ -43,7 +43,7 @@ func (p Process) String() string {
 }
 
 // HealthCheck signals the process to see if it's still running.
-func (p Process) HealthCheck() error {
+func (p *Process) HealthCheck() error {
 	if err := p.Signal(syscall.Signal(0)); err != nil {
 		return fmt.Errorf("process is not running")
 	}
@@ -148,18 +148,18 @@ func (p *Process) FindPid() error {
 }
 
 // FullCommand returns a processes command string with it's arguments.
-func (p Process) FullCommand() string {
+func (p *Process) FullCommand() string {
 	return p.Cmd + " " + strings.Join(p.Args, " ")
 }
 
 // InTty returns a true or false depending if p.Tty is ?? or
 // a value such as ttys001.
-func (p Process) InTty() bool {
+func (p *Process) InTty() bool {
 	return p.Tty != "??"
 }
 
 // OpenTty returns an opened file handle to the tty of the process.
-func (p Process) OpenTty() (*os.File, error) {
+func (p *Process) OpenTty() (*os.File, error) {
 	if !p.InTty() {
 		return nil, fmt.Errorf("process is not in a tty")
 	}
@@ -167,7 +167,7 @@ func (p Process) OpenTty() (*os.File, error) {
 }
 
 // Chdir changes the current working directory to the processes cwd.
-func (p Process) Chdir() error {
+func (p *Process) Chdir() error {
 	return os.Chdir(p.Cwd)
 }
 
