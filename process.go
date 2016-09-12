@@ -226,15 +226,24 @@ func FindByPid(pid int) (*Process, error) {
 
 	pidStr := strconv.Itoa(proc.Pid)
 
-	// Get the comm= result from ps to compare to the ps's
-	// command= result to use to extract the process's args.
+	// Get the tty= and comm= result from ps. Extract the tty of the process from
+	// the tty= result and use the comm= result to compare to the command= result
+	// below, to extract the process's command args.
 	//
-	// ps -o comm= -p $PID
-	pidCmd, err := exec.Command("ps", "-o", "comm=", pidStr).Output()
+	// ps -o tty=,comm= -p $PID
+	pidCmd, err := exec.Command("ps", "-o", "tty=,comm=", pidStr).Output()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	proc.Cmd = strings.TrimSpace(string(pidCmd))
+
+	// Split the tty and command parts from the result of the above ps command.
+	psfields := strings.FieldsFunc(string(pidCmd), unicode.IsSpace)
+
+	// Get the tty of the process.
+	proc.Tty = psfields[0]
+
+	// Get the proc's command.
+	proc.Cmd = strings.Join(psfields[1:], " ")
 
 	// Extract process's args.
 	//
@@ -244,15 +253,11 @@ func FindByPid(pid int) (*Process, error) {
 		log.Fatalln(err)
 	}
 
+	// Split the command= string after the comm= string.
 	split := strings.SplitAfter(string(pidCommandEq), proc.Cmd)
-	proc.Args = strings.FieldsFunc(split[1], unicode.IsSpace)
 
-	// Get the tty of the process.
-	tty, err := exec.Command("ps", "-o", "tty=", "-p", pidStr).Output()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	proc.Tty = strings.TrimSpace(string(tty))
+	// Set the process's args.
+	proc.Args = strings.FieldsFunc(split[1], unicode.IsSpace)
 
 	// Find folder of the process (cwd).
 	//
