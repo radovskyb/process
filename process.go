@@ -79,6 +79,8 @@ func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 	return c.Wait()
 }
 
+// StartTty requires sudo to work.
+//
 // StartTty starts a process in a tty and notifies on the
 // notify channel when the process has been started.
 func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
