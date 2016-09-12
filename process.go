@@ -16,6 +16,9 @@ import (
 )
 
 // Process describes a unix process.
+//
+// The Process's Pid and the methods Kill(), Release(), Signal()
+// and Wait() are implemented by composition with os.Process.
 type Process struct {
 	*os.Process
 	Tty  string
