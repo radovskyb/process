@@ -53,6 +53,8 @@ func (p *Process) HealthCheck() error {
 // Start starts a process and notifies on the notify channel
 // when the process has been started. It uses stdin, stdout and
 // stderr for the command's stdin, stdout and stderr respectively.
+//
+// If the notify channel is nil, just return normally so the call doesn't block.
 func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 	notify chan<- struct{}) error {
 	// Create a new command to start the process with.
@@ -75,8 +77,10 @@ func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 		return err
 	}
 
-	// Notify that the process has started.
-	notify <- struct{}{}
+	// Notify that the process has started if notify isn't nil.
+	if notify != nil {
+		notify <- struct{}{}
+	}
 
 	// Wait for the command to finish.
 	return c.Wait()
@@ -84,8 +88,10 @@ func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 
 // StartTty requires sudo to work.
 //
-// StartTty starts a process in a tty and notifies on the
-// notify channel when the process has been started.
+// StartTty starts a process in a tty and notifies on the notify channel
+// when the process has been started.
+//
+// If the notify channel is nil, just return normally so the call doesn't block.
 func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 	// Append a new line character to the full command so the command
 	// actually executes.
@@ -109,8 +115,10 @@ func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 		return err
 	}
 
-	// Notify that the process has started.
-	notify <- struct{}{}
+	// Notify that the process has started if notify isn't nil.
+	if notify != nil {
+		notify <- struct{}{}
+	}
 
 	return nil
 }
