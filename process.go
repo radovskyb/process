@@ -182,7 +182,10 @@ func (p *Process) Chdir() error {
 // Find by name takes in a name and through a process of elimination by
 // prompting the user to select the correct process from a list, finds
 // and returns a process by it's name.
-func FindByName(name string) (*Process, error) {
+//
+// FindByName writes the list of names to the specified stdout and then scans
+// the number for choosing the correct name from the specified stdin.
+func FindByName(stdout io.Writer, stdin io.Reader, name string) (*Process, error) {
 	psOutput, err := exec.Command("ps", "-e").Output()
 	if err != nil {
 		return nil, err
@@ -207,8 +210,8 @@ func FindByName(name string) (*Process, error) {
 	}
 
 	procNumber := -1
-	fmt.Println("\nWhich number above represents the correct process (enter the number):")
-	fmt.Scanf("%d", &procNumber)
+	fmt.Fprintln(stdout, "\nWhich number above represents the correct process (enter the number):")
+	fmt.Fscanf(stdin, "%d", &procNumber)
 
 	if procNumber < 0 {
 		return nil, fmt.Errorf("please enter a valid number")
