@@ -92,6 +92,9 @@ func (p *Process) Start(detach bool, stdin io.Reader, stdout, stderr io.Writer,
 // when the process has been started.
 //
 // If the notify channel is nil, just return normally so the call doesn't block.
+//
+// The notify channel is here for consistency with the notify channel from
+// the Start method.
 func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 	// Append a new line character to the full command so the command
 	// actually executes.
