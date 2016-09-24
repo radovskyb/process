@@ -141,7 +141,7 @@ func (p *Process) FindPid() error {
 	scanner := bufio.NewScanner(bytes.NewReader(ps))
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, p.Cmd+" "+strings.Join(p.Args, " ")) &&
+		if strings.Contains(line, p.FullCommand()) &&
 			strings.Contains(line, p.Tty) {
 			p.Pid, err = strconv.Atoi(strings.TrimSpace(strings.Split(line, " ")[0]))
 			if err != nil {
@@ -160,6 +160,9 @@ func (p *Process) FindPid() error {
 
 // FullCommand returns a processes command string with it's arguments.
 func (p *Process) FullCommand() string {
+	if len(p.Args) == 0 {
+		return p.Cmd
+	}
 	return p.Cmd + " " + strings.Join(p.Args, " ")
 }
 
