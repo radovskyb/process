@@ -110,7 +110,12 @@ func TestFullCommand(t *testing.T) {
 }
 
 func TestFindPid(t *testing.T) {
-	proc := &Process{Cwd: cwd, Cmd: cmd, Args: args, Tty: currentTty, Process: &os.Process{}}
+	proc := &Process{
+		Cmd:  cmd,
+		Args: args,
+		Tty:  currentTty,
+	}
+
 	if err := proc.FindPid(); err != nil {
 		t.Error(err)
 	}

@@ -129,6 +129,10 @@ func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 // FindPid finds and then sets the a process's pid based
 // on it's command, it's command's arguments and it's tty.
 func (p *Process) FindPid() error {
+	if p.Process == nil {
+		p.Process = &os.Process{}
+	}
+
 	if p.Cmd == "" {
 		return fmt.Errorf("process command is empty")
 	}
