@@ -158,12 +158,15 @@ func (p *Process) FindPid() error {
 	return err
 }
 
-// FullCommand returns a processes command string with it's arguments.
+// FullCommand returns a string containing the process's
+// cmd and any args that it has joined to it by a space.
+//
+// If there are no args, FullCommand returns just the cmd.
 func (p *Process) FullCommand() string {
 	if len(p.Args) == 0 {
 		return p.Cmd
 	}
-	return p.Cmd + " " + strings.Join(p.Args, " ")
+	return fmt.Sprintf("%s %s", p.Cmd, strings.Join(p.Args, " "))
 }
 
 // InTty returns a true or false depending if p.Tty is ?? or
