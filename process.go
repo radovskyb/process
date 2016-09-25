@@ -114,7 +114,7 @@ func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 	}
 
 	// Get the new PID of the restarted process.
-	if err := p.FindPid(); err != nil {
+	if err := p.FindProcess(); err != nil {
 		return err
 	}
 
@@ -126,9 +126,9 @@ func (p *Process) StartTty(ttyFd uintptr, notify chan<- struct{}) error {
 	return nil
 }
 
-// FindPid finds and then sets the a process's pid based
+// FindProcess finds and then sets a Process's process based
 // on it's command, it's command's arguments and it's tty.
-func (p *Process) FindPid() error {
+func (p *Process) FindProcess() error {
 	if p.Process == nil {
 		p.Process = &os.Process{}
 	}
