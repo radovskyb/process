@@ -1,3 +1,4 @@
+// TODO: Add Process Kill method.
 package process
 
 import (
@@ -13,6 +14,24 @@ import (
 	"syscall"
 	"unicode"
 	"unsafe"
+)
+
+var (
+	// ErrProcCommandEmpty is an error that occurs when calling FindProcess
+	// for a Process and the Process's command is empty.
+	ErrProcCommandEmpty = fmt.Errorf("error: process command is empty")
+
+	// ErrProcNotRunning is an error that is returned when running a health check
+	// for a process and the process is not running.
+	ErrProcNotRunning = fmt.Errorf("error: process is not running")
+
+	// ErrProcNotInTty is an error that occurs when trying to open a Process's
+	// tty but the Process does not have it's tty value set.
+	ErrProcNotInTty = fmt.Errorf("process is not in a tty")
+
+	// ErrInvalidNumber is an error that occurs when the number scanned in
+	// whilst searching for a ProcessByName is less than 0.
+	ErrInvalidNumber = fmt.Errorf("please enter a valid number")
 )
 
 // Process describes a unix process.
@@ -45,7 +64,7 @@ func (p *Process) String() string {
 // HealthCheck signals the process to see if it's still running.
 func (p *Process) HealthCheck() error {
 	if err := p.Signal(syscall.Signal(0)); err != nil {
-		return fmt.Errorf("process is not running")
+		return ErrProcNotRunning
 	}
 	return nil
 }
@@ -134,7 +153,7 @@ func (p *Process) FindProcess() error {
 	}
 
 	if p.Cmd == "" {
-		return fmt.Errorf("process command is empty")
+		return ErrProcCommandEmpty
 	}
 
 	ps, err := exec.Command("ps", "-e").Output()
@@ -182,7 +201,7 @@ func (p *Process) InTty() bool {
 // OpenTty returns an opened file handle to the tty of the process.
 func (p *Process) OpenTty() (*os.File, error) {
 	if !p.InTty() {
-		return nil, fmt.Errorf("process is not in a tty")
+		return nil, ErrProcNotInTty
 	}
 	return os.Open("/dev/" + p.Tty)
 }
@@ -227,7 +246,7 @@ func FindByName(stdout io.Writer, stdin io.Reader, name string) (*Process, error
 	fmt.Fscanf(stdin, "%d", &procNumber)
 
 	if procNumber < 0 {
-		return nil, fmt.Errorf("please enter a valid number")
+		return nil, ErrInvalidNumber
 	}
 
 	pid, err := strconv.Atoi(strings.TrimSpace(strings.Split(names[procNumber], " ")[0]))
