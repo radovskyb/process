@@ -164,9 +164,10 @@ func (p *Process) FindProcess() error {
 	scanner := bufio.NewScanner(bytes.NewReader(ps))
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, p.FullCommand()) &&
-			strings.Contains(line, p.Tty) {
-			p.Pid, err = strconv.Atoi(strings.TrimSpace(strings.Split(line, " ")[0]))
+		if strings.Contains(line, p.Cmd) && strings.Contains(line, p.Tty) {
+			p.Pid, err = strconv.Atoi(strings.TrimSpace(
+				strings.FieldsFunc(line, unicode.IsSpace)[0]),
+			)
 			if err != nil {
 				return err
 			}
@@ -249,7 +250,9 @@ func FindByName(stdout io.Writer, stdin io.Reader, name string) (*Process, error
 		return nil, ErrInvalidNumber
 	}
 
-	pid, err := strconv.Atoi(strings.TrimSpace(strings.Split(names[procNumber], " ")[0]))
+	pid, err := strconv.Atoi(strings.TrimSpace(
+		strings.FieldsFunc(names[procNumber], unicode.IsSpace)[0]),
+	)
 	if err != nil {
 		return nil, err
 	}
