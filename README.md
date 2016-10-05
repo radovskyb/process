@@ -5,7 +5,7 @@ For an example into what process is capable of doing, check out gobeat: https://
 
 # Features
 
-- Find a process by PID.
+- Find a process by `PID`.
 - Find a process by name.
 - Health check a process.
 - Start a new process.
