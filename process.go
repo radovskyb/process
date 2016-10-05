@@ -1,4 +1,3 @@
-// TODO: Add Process Kill method.
 package process
 
 import (
