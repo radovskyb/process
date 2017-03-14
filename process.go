@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -157,7 +156,7 @@ func (p *Process) FindProcess() error {
 
 	ps, err := exec.Command("ps", "-e").Output()
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	scanner := bufio.NewScanner(bytes.NewReader(ps))
@@ -278,7 +277,7 @@ func FindByPid(pid int) (*Process, error) {
 	// ps -o tty=,comm= -p $PID
 	pidCmd, err := exec.Command("ps", "-o", "tty=,comm=", pidStr).Output()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	// Split the tty and command parts from the result of the above ps command.
@@ -295,7 +294,7 @@ func FindByPid(pid int) (*Process, error) {
 	// Get the ps command= string result.
 	pidCommandEq, err := exec.Command("ps", "-o", "command=", pidStr).Output()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	// Split the command= string after the comm= string.
@@ -309,7 +308,7 @@ func FindByPid(pid int) (*Process, error) {
 	// lsof -p $PID
 	lsofOutput, err := exec.Command("lsof", "-p", pidStr).Output()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	scanner := bufio.NewScanner(bytes.NewReader(lsofOutput))
