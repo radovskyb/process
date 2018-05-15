@@ -194,7 +194,7 @@ func (p *Process) FullCommand() string {
 // InTty returns a true or false depending if p.Tty is ?? or
 // a value such as ttys001.
 func (p *Process) InTty() bool {
-	return p.Tty != "??"
+	return p.Tty[0] != "?"[0]
 }
 
 // OpenTty returns an opened file handle to the tty of the process.
